@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+// Force restart
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 
@@ -60,3 +61,5 @@ AppDataSource.initialize()
     console.error(error);
     process.exit(1); // Detener el proceso si la base de datos no está disponible
   });
+
+

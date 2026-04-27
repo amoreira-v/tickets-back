@@ -28,6 +28,14 @@ __decorate([
     __metadata("design:type", String)
 ], Option.prototype, "description", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Option.prototype, "path", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Option.prototype, "icon", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => Module_1.Module),
     (0, typeorm_1.JoinColumn)({ name: 'module_id' }),
     __metadata("design:type", Module_1.Module)

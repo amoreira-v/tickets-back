@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Profile = exports.ProfileName = void 0;
 const typeorm_1 = require("typeorm");
+const Option_1 = require("./Option");
 var ProfileName;
 (function (ProfileName) {
     ProfileName["ADMIN"] = "ADMIN";
@@ -36,6 +37,15 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], Profile.prototype, "description", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => Option_1.Option),
+    (0, typeorm_1.JoinTable)({
+        name: 'profile_options',
+        joinColumn: { name: 'profile_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'option_id', referencedColumnName: 'id' }
+    }),
+    __metadata("design:type", Array)
+], Profile.prototype, "options", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
     __metadata("design:type", Date)

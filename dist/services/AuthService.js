@@ -51,7 +51,7 @@ class AuthService {
     async login(data) {
         const user = await this.userRepository.findOne({
             where: { email: data.email },
-            relations: ['profile']
+            relations: ['profile', 'profile.options']
         });
         if (!user) {
             throw new Error('User not found');
@@ -60,11 +60,17 @@ class AuthService {
         if (!isMatch) {
             throw new Error('Invalid credentials');
         }
+        const funciones = (user.profile.options || []).map(opt => ({
+            name: opt.name,
+            path: opt.path,
+            icon: opt.icon
+        }));
         // Generate token
         const token = jsonwebtoken_1.default.sign({
             id: user.id,
             email: user.email,
-            profile: user.profile.name
+            profile: user.profile.name,
+            permissions: funciones.map(f => f.path).filter(p => !!p)
         }, env_config_1.ENV.JWT_SECRET, { expiresIn: '24h' });
         return {
             token,
@@ -72,7 +78,8 @@ class AuthService {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                profile: user.profile.name
+                profile: user.profile.name,
+                funciones
             }
         };
     }
