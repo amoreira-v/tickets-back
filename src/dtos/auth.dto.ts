@@ -27,3 +27,22 @@ export class LoginDto {
   @IsNotEmpty()
   password: string;
 }
+
+export interface FunctionDto {
+  name: string;
+  path: string;
+  icon: string;
+}
+
+export interface UserResponseDto {
+  id: string;
+  name: string;
+  email: string;
+  profile: string;
+  funciones: FunctionDto[];
+}
+
+export interface AuthResponseDto {
+  token: string;
+  user: UserResponseDto;
+}

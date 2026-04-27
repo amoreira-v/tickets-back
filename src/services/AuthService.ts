@@ -3,20 +3,8 @@ import jwt from 'jsonwebtoken';
 import { AppDataSource } from '../config/data-source';
 import { User } from '../models/User';
 import { Profile, ProfileName } from '../models/Profile';
-import { RegisterDto, LoginDto } from '../dtos/auth.dto';
+import { RegisterDto, LoginDto, AuthResponseDto, FunctionDto } from '../dtos/auth.dto';
 import { ENV } from '../config/env.config';
-
-export interface UserResponse {
-  id: string;
-  name: string;
-  email: string;
-  profile: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: UserResponse;
-}
 
 export class AuthService {
   private userRepository = AppDataSource.getRepository(User);
@@ -62,10 +50,10 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  async login(data: LoginDto): Promise<AuthResponse> {
+  async login(data: LoginDto): Promise<AuthResponseDto> {
     const user = await this.userRepository.findOne({ 
       where: { email: data.email },
-      relations: ['profile']
+      relations: ['profile', 'profile.options']
     });
 
     if (!user) {
@@ -76,13 +64,20 @@ export class AuthService {
     if (!isMatch) {
       throw new Error('Invalid credentials');
     }
+
+    const funciones = (user.profile.options || []).map(opt => ({
+      name: opt.name,
+      path: opt.path,
+      icon: opt.icon
+    }));
     
     // Generate token
     const token = jwt.sign(
       { 
         id: user.id, 
         email: user.email, 
-        profile: user.profile.name 
+        profile: user.profile.name,
+        permissions: funciones.map(f => f.path).filter(p => !!p)
       }, 
       ENV.JWT_SECRET, 
       { expiresIn: '24h' }
@@ -94,7 +89,8 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
-        profile: user.profile.name
+        profile: user.profile.name,
+        funciones
       }
     };
   }

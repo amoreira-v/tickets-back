@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Option } from './Option';
 
 export enum ProfileName {
   ADMIN = 'ADMIN',
@@ -20,6 +21,14 @@ export class Profile {
 
   @Column({ type: 'text', nullable: true })
   description: string;
+
+  @ManyToMany(() => Option)
+  @JoinTable({
+    name: 'profile_options',
+    joinColumn: { name: 'profile_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'option_id', referencedColumnName: 'id' }
+  })
+  options: Option[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -12,6 +12,12 @@ export class Option {
   @Column({ type: 'text', nullable: true })
   description: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  path: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  icon: string;
+
   @ManyToOne(() => Module)
   @JoinColumn({ name: 'module_id' })
   module: Module;
