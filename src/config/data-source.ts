@@ -5,6 +5,8 @@ import { Profile } from '../models/Profile';
 import { Ticket } from '../models/Ticket';
 import { Module } from '../models/Module';
 import { Option } from '../models/Option';
+import { Comment } from '../models/Comment';
+import { Assignment } from '../models/Assignment';
 import { ENV } from './env.config';
 
 export const AppDataSource = new DataSource(
@@ -14,7 +16,7 @@ export const AppDataSource = new DataSource(
         database: ENV.DB_DATABASE,
         synchronize: true,
         logging: false,
-        entities: [User, Profile, Ticket, Module, Option],
+        entities: [User, Profile, Ticket, Module, Option, Comment, Assignment],
       }
     : {
         type: 'postgres',
@@ -25,6 +27,6 @@ export const AppDataSource = new DataSource(
         database: ENV.DB_NAME,
         synchronize: true,
         logging: false,
-        entities: [User, Profile, Ticket, Module, Option],
+        entities: [User, Profile, Ticket, Module, Option, Comment, Assignment],
       }
 );

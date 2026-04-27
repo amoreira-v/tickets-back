@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.config';
+import { CustomError } from '../utils/CustomError';
 
 export interface TokenPayload {
   id: string;
@@ -17,10 +18,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({
-      status: 'error',
-      message: 'Token no proporcionado o expirado'
-    });
+    return next(new CustomError('Token no proporcionado o expirado', 401));
   }
 
   const token = authHeader.split(' ')[1];
@@ -35,27 +33,22 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     
     const requestedPath = req.originalUrl;
     const isPublicPath = requestedPath.startsWith('/api/auth');
+    const permissions = Array.isArray(decoded.permissions) ? decoded.permissions : [];
     
     if (!isPublicPath && decoded.profile !== 'ADMIN') {
-      const hasPermission = decoded.permissions.some(permissionPath => {
+      const hasPermission = permissions.some(permissionPath => {
         // Mapeo simple: si el path permitido está contenido en la URL de la API
         // Ej: /tickets permite /api/tickets
-        return requestedPath.includes(permissionPath);
+        return typeof permissionPath === 'string' && requestedPath.includes(permissionPath);
       });
 
       if (!hasPermission) {
-        return res.status(403).json({
-          status: 'error',
-          message: 'No tienes permiso para acceder a esta función'
-        });
+        return next(new CustomError('No tienes permiso para acceder a esta funcion', 403));
       }
     }
 
     next();
   } catch (error) {
-    return res.status(401).json({
-      status: 'error',
-      message: 'Token no proporcionado o expirado'
-    });
+    return next(new CustomError('Token no proporcionado o expirado', 401));
   }
 };

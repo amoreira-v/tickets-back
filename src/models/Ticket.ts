@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from './User';
+import { Comment } from './Comment';
+import { Assignment } from './Assignment';
 
 export enum TicketStatus {
   OPEN = 'OPEN',
@@ -36,6 +38,12 @@ export class Ticket {
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'assigned_to' })
   assignedTo: User | null;
+
+  @OneToMany(() => Comment, (comment) => comment.ticket)
+  comments: Comment[];
+
+  @OneToMany(() => Assignment, (assignment) => assignment.ticket)
+  assignments: Assignment[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

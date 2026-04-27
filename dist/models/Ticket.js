@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ticket = exports.TicketStatus = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
+const Comment_1 = require("./Comment");
+const Assignment_1 = require("./Assignment");
 var TicketStatus;
 (function (TicketStatus) {
     TicketStatus["OPEN"] = "OPEN";
@@ -56,6 +58,14 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'assigned_to' }),
     __metadata("design:type", Object)
 ], Ticket.prototype, "assignedTo", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Comment_1.Comment, (comment) => comment.ticket),
+    __metadata("design:type", Array)
+], Ticket.prototype, "comments", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Assignment_1.Assignment, (assignment) => assignment.ticket),
+    __metadata("design:type", Array)
+], Ticket.prototype, "assignments", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
     __metadata("design:type", Date)

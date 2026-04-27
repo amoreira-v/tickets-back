@@ -11,11 +11,35 @@ class TicketService {
         this.ticketRepository = data_source_1.AppDataSource.getRepository(Ticket_1.Ticket);
         this.userRepository = data_source_1.AppDataSource.getRepository(User_1.User);
     }
+    toUserView(user) {
+        if (!user) {
+            return null;
+        }
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        };
+    }
+    toTicketView(ticket) {
+        return {
+            id: ticket.id,
+            title: ticket.title,
+            description: ticket.description,
+            status: ticket.status,
+            priority: ticket.priority,
+            user: this.toUserView(ticket.user),
+            assignedTo: this.toUserView(ticket.assignedTo),
+            createdAt: ticket.createdAt,
+            updatedAt: ticket.updatedAt,
+        };
+    }
     async getAllTickets() {
-        return await this.ticketRepository.find({
+        const tickets = await this.ticketRepository.find({
             relations: ['user', 'assignedTo'],
             order: { createdAt: 'DESC' }
         });
+        return tickets.map((ticket) => this.toTicketView(ticket));
     }
     // Se añade parámetro userAuthData que proviene de req.user
     async createTicket(data, userAuthData) {
@@ -33,7 +57,12 @@ class TicketService {
             status: Ticket_1.TicketStatus.OPEN,
             user: user,
         });
-        return await this.ticketRepository.save(ticket);
+        const savedTicket = await this.ticketRepository.save(ticket);
+        return this.toTicketView({
+            ...savedTicket,
+            user,
+            assignedTo: savedTicket.assignedTo ?? null,
+        });
     }
     // Se añade parámetro userAuthData
     async updateTicketStatus(id, data, userAuthData) {

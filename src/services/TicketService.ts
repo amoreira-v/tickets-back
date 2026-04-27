@@ -6,15 +6,61 @@ import { CustomError } from '../utils/CustomError';
 import { ProfileName } from '../models/Profile';
 import { TokenPayload } from '../middlewares/auth.middleware';
 
+interface TicketUserView {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface TicketView {
+  id: string;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  priority: string;
+  user: TicketUserView | null;
+  assignedTo: TicketUserView | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class TicketService {
   private ticketRepository = AppDataSource.getRepository(Ticket);
   private userRepository = AppDataSource.getRepository(User);
 
+  private toUserView(user: User | null | undefined): TicketUserView | null {
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+  }
+
+  private toTicketView(ticket: Ticket): TicketView {
+    return {
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      status: ticket.status,
+      priority: ticket.priority,
+      user: this.toUserView(ticket.user),
+      assignedTo: this.toUserView(ticket.assignedTo),
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
+    };
+  }
+
   async getAllTickets() {
-    return await this.ticketRepository.find({
+    const tickets = await this.ticketRepository.find({
       relations: ['user', 'assignedTo'],
       order: { createdAt: 'DESC' }
     });
+
+    return tickets.map((ticket) => this.toTicketView(ticket));
   }
 
   // Se añade parámetro userAuthData que proviene de req.user
@@ -36,7 +82,13 @@ export class TicketService {
       user: user,
     });
 
-    return await this.ticketRepository.save(ticket);
+    const savedTicket = await this.ticketRepository.save(ticket);
+
+    return this.toTicketView({
+      ...savedTicket,
+      user,
+      assignedTo: savedTicket.assignedTo ?? null,
+    } as Ticket);
   }
 
   // Se añade parámetro userAuthData
