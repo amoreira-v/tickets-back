@@ -68,3 +68,5 @@ npm run start
 Todas las respuestas siguen el formato:
 - Éxito: `{ "status": "success", "data": ... }`
 - Error: `{ "status": "error", "message": "...", "code": 400 }`
+
+Para una guía detallada de todos los endpoints, parámetros y roles, consulta la [Documentación de la API](API_DOCUMENTATION.md).
